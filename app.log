@@ -1,0 +1,436 @@
+2026-08-03 14:11:17 [ERROR] Erreur sur la question 'donner moi la liste de produit': Expecting value: line 1 column 1 (char 0)
+Traceback (most recent call last):
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\requests\models.py", line 1116, in json
+    return complexjson.loads(self.text, **kwargs)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\json\__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Python314\Lib\json\decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\json\decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\MSI\Desktop\projet-textsql\chat_app.py", line 93, in <module>
+    data = response.json()
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\requests\models.py", line 1120, in json
+    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+requests.exceptions.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+2026-08-03 23:57:41 [ERROR] Erreur sur la question 'donner moi la liste de produit': unhashable type: 'list'
+Traceback (most recent call last):
+  File "C:\Users\MSI\Desktop\projet-textsql\chat_app.py", line 96, in <module>
+    df = pd.DataFrame(data).drop_duplicates().reset_index(drop=True)
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\frame.py", line 7953, in drop_duplicates
+    result = self[-self.duplicated(subset, keep=keep)]
+                   ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\frame.py", line 8091, in duplicated
+    labels, shape = map(list, zip(*map(f, vals), strict=True))
+                              ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\frame.py", line 8063, in f
+    labels, shape = algorithms.factorize(vals, size_hint=len(self))
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\algorithms.py", line 821, in factorize
+    codes, uniques = factorize_array(
+                     ~~~~~~~~~~~~~~~^
+        values,
+        ^^^^^^^
+        use_na_sentinel=use_na_sentinel,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        size_hint=size_hint,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\algorithms.py", line 637, in factorize_array
+    uniques, codes = table.factorize(
+                     ~~~~~~~~~~~~~~~^
+        values,
+        ^^^^^^^
+    ...<3 lines>...
+        ignore_na=use_na_sentinel,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7873, in pandas._libs.hashtable.PyObjectHashTable.factorize
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7783, in pandas._libs.hashtable.PyObjectHashTable._unique
+TypeError: unhashable type: 'list'
+
+2026-08-03 23:58:31 [ERROR] Erreur sur la question 'donner moi la liste de produit': unhashable type: 'list'
+Traceback (most recent call last):
+  File "C:\Users\MSI\Desktop\projet-textsql\chat_app.py", line 96, in <module>
+    df = pd.DataFrame(data).drop_duplicates().reset_index(drop=True)
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\frame.py", line 7953, in drop_duplicates
+    result = self[-self.duplicated(subset, keep=keep)]
+                   ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\frame.py", line 8091, in duplicated
+    labels, shape = map(list, zip(*map(f, vals), strict=True))
+                              ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\frame.py", line 8063, in f
+    labels, shape = algorithms.factorize(vals, size_hint=len(self))
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\algorithms.py", line 821, in factorize
+    codes, uniques = factorize_array(
+                     ~~~~~~~~~~~~~~~^
+        values,
+        ^^^^^^^
+        use_na_sentinel=use_na_sentinel,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        size_hint=size_hint,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\algorithms.py", line 637, in factorize_array
+    uniques, codes = table.factorize(
+                     ~~~~~~~~~~~~~~~^
+        values,
+        ^^^^^^^
+    ...<3 lines>...
+        ignore_na=use_na_sentinel,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7873, in pandas._libs.hashtable.PyObjectHashTable.factorize
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7783, in pandas._libs.hashtable.PyObjectHashTable._unique
+TypeError: unhashable type: 'list'
+
+2026-08-04 00:05:08 [ERROR] Erreur sur la question 'donner moi la liste de produit': HTTPConnectionPool(host='localhost', port=5678): Max retries exceeded with url: /webhook/sql-assistant-v2 (Caused by NewConnectionError("HTTPConnection(host='localhost', port=5678): Failed to establish a new connection: [WinError 10061] Aucune connexion n’a pu être établie car l’ordinateur cible l’a expressément refusée"))
+Traceback (most recent call last):
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\urllib3\connection.py", line 204, in _new_conn
+    sock = connection.create_connection(
+        (self._dns_host, self.port),
+    ...<2 lines>...
+        socket_options=self.socket_options,
+    )
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\urllib3\util\connection.py", line 85, in create_connection
+    raise err
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\urllib3\util\connection.py", line 73, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+ConnectionRefusedError: [WinError 10061] Aucune connexion n’a pu être établie car l’ordinateur cible l’a expressément refusée
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\urllib3\connectionpool.py", line 788, in urlopen
+    response = self._make_request(
+        conn,
+    ...<10 lines>...
+        **response_kw,
+    )
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\urllib3\connectionpool.py", line 493, in _make_request
+    conn.request(
+    ~~~~~~~~~~~~^
+        method,
+        ^^^^^^^
+    ...<6 lines>...
+        enforce_content_length=enforce_content_length,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\urllib3\connection.py", line 500, in request
+    self.endheaders()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Python314\Lib\http\client.py", line 1353, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\http\client.py", line 1113, in _send_output
+    self.send(msg)
+    ~~~~~~~~~^^^^^
+  File "C:\Python314\Lib\http\client.py", line 1057, in send
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\urllib3\connection.py", line 331, in connect
+    self.sock = self._new_conn()
+                ~~~~~~~~~~~~~~^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\urllib3\connection.py", line 219, in _new_conn
+    raise NewConnectionError(
+        self, f"Failed to establish a new connection: {e}"
+    ) from e
+urllib3.exceptions.NewConnectionError: HTTPConnection(host='localhost', port=5678): Failed to establish a new connection: [WinError 10061] Aucune connexion n’a pu être établie car l’ordinateur cible l’a expressément refusée
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\requests\adapters.py", line 696, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\urllib3\connectionpool.py", line 842, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\urllib3\util\retry.py", line 543, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPConnectionPool(host='localhost', port=5678): Max retries exceeded with url: /webhook/sql-assistant-v2 (Caused by NewConnectionError("HTTPConnection(host='localhost', port=5678): Failed to establish a new connection: [WinError 10061] Aucune connexion n’a pu être établie car l’ordinateur cible l’a expressément refusée"))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\MSI\Desktop\projet-textsql\chat_app.py", line 91, in <module>
+    response = requests.post(WEBHOOK_URL, json={"question": question}, timeout=120)
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\requests\api.py", line 134, in post
+    return request("post", url, data=data, json=json, **kwargs)
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\requests\api.py", line 71, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\requests\sessions.py", line 651, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\requests\sessions.py", line 784, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\requests\adapters.py", line 729, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPConnectionPool(host='localhost', port=5678): Max retries exceeded with url: /webhook/sql-assistant-v2 (Caused by NewConnectionError("HTTPConnection(host='localhost', port=5678): Failed to establish a new connection: [WinError 10061] Aucune connexion n’a pu être établie car l’ordinateur cible l’a expressément refusée"))
+
+2026-08-04 00:12:37 [ERROR] Erreur sur la question 'donner moi la liste de produit': unhashable type: 'list'
+Traceback (most recent call last):
+  File "C:\Users\MSI\Desktop\projet-textsql\chat_app.py", line 96, in <module>
+    df = pd.DataFrame(data).drop_duplicates().reset_index(drop=True)
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\frame.py", line 7953, in drop_duplicates
+    result = self[-self.duplicated(subset, keep=keep)]
+                   ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\frame.py", line 8091, in duplicated
+    labels, shape = map(list, zip(*map(f, vals), strict=True))
+                              ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\frame.py", line 8063, in f
+    labels, shape = algorithms.factorize(vals, size_hint=len(self))
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\algorithms.py", line 821, in factorize
+    codes, uniques = factorize_array(
+                     ~~~~~~~~~~~~~~~^
+        values,
+        ^^^^^^^
+        use_na_sentinel=use_na_sentinel,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        size_hint=size_hint,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\algorithms.py", line 637, in factorize_array
+    uniques, codes = table.factorize(
+                     ~~~~~~~~~~~~~~~^
+        values,
+        ^^^^^^^
+    ...<3 lines>...
+        ignore_na=use_na_sentinel,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7873, in pandas._libs.hashtable.PyObjectHashTable.factorize
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7783, in pandas._libs.hashtable.PyObjectHashTable._unique
+TypeError: unhashable type: 'list'
+
+2026-08-04 16:13:52 [ERROR] Erreur sur la question 'donner moi la liste de produit': Expecting value: line 1 column 1 (char 0)
+Traceback (most recent call last):
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\requests\models.py", line 1116, in json
+    return complexjson.loads(self.text, **kwargs)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\json\__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Python314\Lib\json\decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\json\decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\MSI\Desktop\projet-textsql\chat_app.py", line 93, in <module>
+    data = response.json()
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\requests\models.py", line 1120, in json
+    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+requests.exceptions.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+2026-08-04 16:48:57 [ERROR] Erreur sur la question 'donner moi la liste de produit': Expecting value: line 1 column 1 (char 0)
+Traceback (most recent call last):
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\requests\models.py", line 1116, in json
+    return complexjson.loads(self.text, **kwargs)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\json\__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Python314\Lib\json\decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\json\decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\MSI\Desktop\projet-textsql\chat_app.py", line 93, in <module>
+    data = response.json()
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\requests\models.py", line 1120, in json
+    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+requests.exceptions.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+2026-08-04 17:20:28 [ERROR] Erreur sur la question 'donner moi la liste de produit': unhashable type: 'list'
+Traceback (most recent call last):
+  File "C:\Users\MSI\Desktop\projet-textsql\chat_app.py", line 96, in <module>
+    df = pd.DataFrame(data).drop_duplicates().reset_index(drop=True)
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\frame.py", line 7953, in drop_duplicates
+    result = self[-self.duplicated(subset, keep=keep)]
+                   ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\frame.py", line 8091, in duplicated
+    labels, shape = map(list, zip(*map(f, vals), strict=True))
+                              ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\frame.py", line 8063, in f
+    labels, shape = algorithms.factorize(vals, size_hint=len(self))
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\algorithms.py", line 821, in factorize
+    codes, uniques = factorize_array(
+                     ~~~~~~~~~~~~~~~^
+        values,
+        ^^^^^^^
+        use_na_sentinel=use_na_sentinel,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        size_hint=size_hint,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\algorithms.py", line 637, in factorize_array
+    uniques, codes = table.factorize(
+                     ~~~~~~~~~~~~~~~^
+        values,
+        ^^^^^^^
+    ...<3 lines>...
+        ignore_na=use_na_sentinel,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7873, in pandas._libs.hashtable.PyObjectHashTable.factorize
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7783, in pandas._libs.hashtable.PyObjectHashTable._unique
+TypeError: unhashable type: 'list'
+
+2026-08-05 16:44:19 [ERROR] Erreur sur la question 'donner moi la liste de produit': unhashable type: 'list'
+Traceback (most recent call last):
+  File "C:\Users\MSI\Desktop\projet-textsql\chat_app.py", line 96, in <module>
+    df = pd.DataFrame(data).drop_duplicates().reset_index(drop=True)
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\frame.py", line 7953, in drop_duplicates
+    result = self[-self.duplicated(subset, keep=keep)]
+                   ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\frame.py", line 8091, in duplicated
+    labels, shape = map(list, zip(*map(f, vals), strict=True))
+                              ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\frame.py", line 8063, in f
+    labels, shape = algorithms.factorize(vals, size_hint=len(self))
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\algorithms.py", line 821, in factorize
+    codes, uniques = factorize_array(
+                     ~~~~~~~~~~~~~~~^
+        values,
+        ^^^^^^^
+        use_na_sentinel=use_na_sentinel,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        size_hint=size_hint,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\algorithms.py", line 637, in factorize_array
+    uniques, codes = table.factorize(
+                     ~~~~~~~~~~~~~~~^
+        values,
+        ^^^^^^^
+    ...<3 lines>...
+        ignore_na=use_na_sentinel,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7873, in pandas._libs.hashtable.PyObjectHashTable.factorize
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7783, in pandas._libs.hashtable.PyObjectHashTable._unique
+TypeError: unhashable type: 'list'
+
+2026-08-05 16:49:03 [ERROR] Erreur sur la question 'donner moi la liste de produit': unhashable type: 'list'
+Traceback (most recent call last):
+  File "C:\Users\MSI\Desktop\projet-textsql\chat_app.py", line 96, in <module>
+    df = pd.DataFrame(data).drop_duplicates().reset_index(drop=True)
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\frame.py", line 7953, in drop_duplicates
+    result = self[-self.duplicated(subset, keep=keep)]
+                   ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\frame.py", line 8091, in duplicated
+    labels, shape = map(list, zip(*map(f, vals), strict=True))
+                              ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\frame.py", line 8063, in f
+    labels, shape = algorithms.factorize(vals, size_hint=len(self))
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\algorithms.py", line 821, in factorize
+    codes, uniques = factorize_array(
+                     ~~~~~~~~~~~~~~~^
+        values,
+        ^^^^^^^
+        use_na_sentinel=use_na_sentinel,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        size_hint=size_hint,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\algorithms.py", line 637, in factorize_array
+    uniques, codes = table.factorize(
+                     ~~~~~~~~~~~~~~~^
+        values,
+        ^^^^^^^
+    ...<3 lines>...
+        ignore_na=use_na_sentinel,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7873, in pandas._libs.hashtable.PyObjectHashTable.factorize
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7783, in pandas._libs.hashtable.PyObjectHashTable._unique
+TypeError: unhashable type: 'list'
+
+2026-08-05 17:02:51 [ERROR] Erreur sur la question 'donner moi la liste de produit': unhashable type: 'list'
+Traceback (most recent call last):
+  File "C:\Users\MSI\Desktop\projet-textsql\chat_app.py", line 96, in <module>
+    df = pd.DataFrame(data).drop_duplicates().reset_index(drop=True)
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\frame.py", line 7953, in drop_duplicates
+    result = self[-self.duplicated(subset, keep=keep)]
+                   ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\frame.py", line 8091, in duplicated
+    labels, shape = map(list, zip(*map(f, vals), strict=True))
+                              ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\frame.py", line 8063, in f
+    labels, shape = algorithms.factorize(vals, size_hint=len(self))
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\algorithms.py", line 821, in factorize
+    codes, uniques = factorize_array(
+                     ~~~~~~~~~~~~~~~^
+        values,
+        ^^^^^^^
+        use_na_sentinel=use_na_sentinel,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        size_hint=size_hint,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\MSI\AppData\Roaming\Python\Python314\site-packages\pandas\core\algorithms.py", line 637, in factorize_array
+    uniques, codes = table.factorize(
+                     ~~~~~~~~~~~~~~~^
+        values,
+        ^^^^^^^
+    ...<3 lines>...
+        ignore_na=use_na_sentinel,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7873, in pandas._libs.hashtable.PyObjectHashTable.factorize
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7783, in pandas._libs.hashtable.PyObjectHashTable._unique
+TypeError: unhashable type: 'list'
+
