@@ -1,73 +1,134 @@
+﻿"""
+Script de test batch pour l'assistant Text-to-SQL.
+"""
+
 import json
-import requests
 import time
+import requests
 from datetime import datetime, timezone
 
 WEBHOOK_URL = "http://localhost:5678/webhook/sql-assistant-v2"
-TEST_FILE = "test_questions.json"
-HISTORY_FILE = "historique.json"
+TEST_QUESTIONS_FILE = "test_questions.json"
+HISTORIQUE_FILE = "historique.json"
 RESULTS_FILE = "test_results.json"
+TIMEOUT_SECONDS = 120
 
-def load_json(path):
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
 
-def get_history_count():
+def charger_questions(chemin):
+    with open(chemin, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return data["categories"]
+
+
+def charger_historique(chemin):
     try:
-        history = load_json(HISTORY_FILE)
-        return len(history)
+        with open(chemin, "r", encoding="utf-8") as f:
+            return json.load(f)
     except FileNotFoundError:
-        return 0
+        return []
 
-def run_test(category, question):
-    print(f"[{category}] Test : {question}")
-    history_before = get_history_count()
-    start = time.time()
 
-    try:
-        response = requests.post(WEBHOOK_URL, json={"question": question}, timeout=120)
-        elapsed_ms = round((time.time() - start) * 1000)
-        status = "OK" if response.status_code == 200 else f"HTTP_ERROR_{response.status_code}"
-        data = response.json() if response.status_code == 200 else None
-    except requests.exceptions.Timeout:
-        elapsed_ms = round((time.time() - start) * 1000)
-        status = "TIMEOUT"
-        data = None
-    except Exception as e:
-        elapsed_ms = round((time.time() - start) * 1000)
-        status = f"EXCEPTION: {e}"
-        data = None
-
-    time.sleep(1)
-    history_after = get_history_count()
-    logged = history_after > history_before
-
-    return {
-        "category": category,
-        "question": question,
-        "status": status,
-        "response_time_ms": elapsed_ms,
-        "logged_in_history": logged,
-        "raw_response": data,
-        "tested_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+def enregistrer_historique(user_question, sql_query, agent_reply, response_time_ms):
+    entree = {
+        "user_question": user_question,
+        "sql_query": sql_query,
+        "agent_reply": agent_reply,
+        "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "response_time_ms": response_time_ms
     }
+    historique = charger_historique(HISTORIQUE_FILE)
+    historique.append(entree)
+    with open(HISTORIQUE_FILE, "w", encoding="utf-8") as f:
+        json.dump(historique, f, ensure_ascii=False, indent=2)
+
+
+def poser_question(question):
+    start = time.time()
+    try:
+        resp = requests.post(WEBHOOK_URL, json={"question": question}, timeout=TIMEOUT_SECONDS)
+        duree_ms = int((time.time() - start) * 1000)
+        if resp.status_code == 200:
+            return True, resp.json(), duree_ms
+        else:
+            return False, f"Status HTTP {resp.status_code}", duree_ms
+    except requests.exceptions.Timeout:
+        duree_ms = int((time.time() - start) * 1000)
+        return False, "Timeout", duree_ms
+    except Exception as e:
+        duree_ms = int((time.time() - start) * 1000)
+        return False, str(e), duree_ms
+
+
+def verifier_historique_contient(question, historique_avant):
+    historique_apres = charger_historique(HISTORIQUE_FILE)
+    if len(historique_apres) <= len(historique_avant):
+        return False, None
+    nouvelle_entree = historique_apres[-1]
+    if nouvelle_entree.get("user_question") == question:
+        return True, nouvelle_entree
+    anciennes_questions = {e.get("user_question") for e in historique_avant}
+    for entree in reversed(historique_apres):
+        if entree.get("user_question") == question and entree.get("user_question") not in anciennes_questions:
+            return True, entree
+    return False, None
+
 
 def main():
-    test_data = load_json(TEST_FILE)
-    results = []
+    print(f"Chargement de {TEST_QUESTIONS_FILE}...")
+    categories = charger_questions(TEST_QUESTIONS_FILE)
 
-    for category, questions in test_data["categories"].items():
+    total = sum(len(qs) for qs in categories.values())
+    print(f"{total} questions a tester, reparties en {len(categories)} categories.\n")
+
+    resultats = []
+    compteur = 0
+
+    for categorie, questions in categories.items():
+        print(f"--- Categorie : {categorie} ---")
         for question in questions:
-            result = run_test(category, question)
-            results.append(result)
+            compteur += 1
+            print(f"[{compteur}/{total}] {question}")
+
+            historique_avant = charger_historique(HISTORIQUE_FILE)
+
+            succes_http, reponse, duree_ms = poser_question(question)
+
+            sql_query = ""
+            agent_reply = ""
+            if succes_http and isinstance(reponse, dict):
+                sql_query = reponse.get("sql_query", "")
+                agent_reply = reponse.get("agent_reply", "")
+            elif not succes_http:
+                agent_reply = f"ERREUR: {reponse}"
+
+            enregistrer_historique(question, sql_query, agent_reply, duree_ms)
+            historique_ok, entree_historique = verifier_historique_contient(question, historique_avant)
+
+            resultat = {
+                "question": question,
+                "categorie": categorie,
+                "succes_http": succes_http,
+                "duree_ms": duree_ms,
+                "reponse_brute": reponse if succes_http else None,
+                "erreur": reponse if not succes_http else None,
+                "trouve_dans_historique": historique_ok,
+                "timestamp_test": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+            }
+            resultats.append(resultat)
+
+            statut = "OK" if succes_http else "ECHEC"
+            print(f"    -> {statut} ({duree_ms} ms)")
+
+        print()
 
     with open(RESULTS_FILE, "w", encoding="utf-8") as f:
-        json.dump(results, f, ensure_ascii=False, indent=2)
+        json.dump(resultats, f, ensure_ascii=False, indent=2)
 
-    total = len(results)
-    success = sum(1 for r in results if r["status"] == "OK")
-    print(f"\n--- Résumé ---\n{success}/{total} tests réussis (statut OK)")
-    print(f"Résultats détaillés sauvegardés dans {RESULTS_FILE}")
+    nb_succes = sum(1 for r in resultats if r["succes_http"])
+    print("=" * 50)
+    print(f"Termine : {nb_succes}/{total} reponses HTTP reussies.")
+    print(f"Resultats detailles ecrits dans {RESULTS_FILE}")
+
 
 if __name__ == "__main__":
     main()
