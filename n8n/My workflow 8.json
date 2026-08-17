@@ -1,0 +1,240 @@
+{
+  "name": "My workflow 8",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sql-assistant-v2",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1232,
+        -208
+      ],
+      "id": "302aca7e-e793-40b2-89c3-5ba17b23e1c2",
+      "name": "Webhook",
+      "webhookId": "5955a41f-4b99-413d-a90a-d2854f2e2cef"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{ $json.response.replace(/```sql|```/g, '').trim() }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        1552,
+        -240
+      ],
+      "id": "5feb444a-00b3-4d52-8bf5-67f197ce218a",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "mySql": {
+          "id": "UIAM7QdYxy99uJqH",
+          "name": "MySQL account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2064,
+        -128
+      ],
+      "id": "0069ef8b-e049-40a3-bb70-c74c9688ccfb",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3af4244c-236f-4d97-9137-22f45ef4491b",
+              "name": "agent_reply",
+              "value": "Je n'ai pas compris ta question, peux-tu reformuler ?",
+              "type": "string"
+            },
+            {
+              "id": "460e1b65-9a6f-44be-95d0-0322471e471b",
+              "name": "sql_query",
+              "value": "={{ $('OllamaHTTP').item.json.response.replace(/```sql|```/g, '').trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "c0268150-9658-4d79-9338-1710665b150c",
+              "name": "data",
+              "value": "[]",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1600,
+        80
+      ],
+      "id": "acfc9a4b-584d-4f0d-a160-74a5ce8ba8bf",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "89103219-a08b-4356-acae-8ead7df66566",
+              "name": "=sql_query",
+              "value": "={{ $('OllamaHTTP').item.json.response.replace(/```sql|```/g, '').trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "398d16cd-a96a-4043-a9ce-932a1fa8e7f2",
+              "name": "=agent_reply",
+              "value": "={{ $json.length }} resultat(s) trouve(s)",
+              "type": "string"
+            },
+            {
+              "id": "7b66de9a-0906-4206-8eb8-9960705ab0e4",
+              "name": "data",
+              "value": "={{ $input.all().map(item => item.json) }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1824,
+        -208
+      ],
+      "id": "7ed5ebdf-21a0-4445-8c86-4ee1163b776b",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:11434/api/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"mistral\",\n  \"prompt\": \"Tu es un générateur de requêtes SQL MySQL. Transforme la question en UNE SEULE requête SQL en te basant UNIQUEMENT sur les vues suivantes.\\n\\nVUE: view_customer_invoice (factures clients)\\nColonnes: IDFacture, NumeroFacture, DateFacture, IDClient, NomClient, Email, Tel, TotalHT, TotalTVA, TotalTTC, Acquittée (1=payée/0=non), EtatReglement, ResteReglemnt, IDCommande\\n\\nVUE: view_product (produits)\\nColonnes: IDArticle, Code, NomArticle, Prix, Etat (1=actif/0=inactif)\\n\\nVUE: vw_achat_entetes (achats, une ligne par achat)\\nColonnes: IDAchat, NumeroAchat, NumeroFactureFournisseur, DateAchat, DateFactureFournisseur, DateEcheance, IDFournisseur, NomFournisseur, PaysFournisseur, TotalHT, TotalTVA, TotalTTC, TotalFodec, RemiseAchat, ResteARegler, TotalQtte, StatutReglement ('Non réglé'/'Partiellement réglé'/'Totalement réglé'), TypeAchat ('Achat normal'/'Avoir'/'Proforma'), EtatAchat ('Actif'/'Inactif'), SaisiPar, SaisiLe, AnneeAchat, MoisAchat\\n\\nVUE: vw_achat (achats, détail ligne par ligne avec matière première)\\nColonnes: toutes celles de vw_achat_entetes PLUS IDLigneAchat, IDMP, CodeMP, DesignationMP, Quantite, PrixUnitaire, MontantLigneHT, RemiseLigne, TauxTVA, DescriptionMP, CouleurMP, TypeMatiere, CompositionMP, UniteMP, StockMin, StockAlerte\\n\\nVUE: vw_achat_kpi_fournisseur (statistiques déjà calculées par fournisseur)\\nColonnes: IDFournisseur, NomFournisseur, PaysFournisseur, NombreAchats, TotalAchatsHT, TotalAchatsTTC, TotalResteARegler, MoyenneAchatHT, NbAchatsReglés, NbAchatsNonReglés, PremierAchat, DernierAchat\\n\\nRÈGLES STRICTES:\\n- Réponds UNIQUEMENT avec la requête SQL, sans texte, sans markdown.\\n- Utilise UNIQUEMENT les mots-clés SQL en ANGLAIS (SELECT, FROM, WHERE, ORDER BY, GROUP BY, HAVING, LIMIT, DESC, ASC, COUNT, SUM, AVG, MIN, MAX, DISTINCT, BETWEEN). Ne traduis JAMAIS ces mots-clés.\\n- Recopie les noms de colonnes EXACTEMENT comme indiqué, sans corriger l'orthographe.\\n- N'oublie JAMAIS les clauses WHERE demandées explicitement.\\n- Si la question demande une LISTE de clients, produits, fournisseurs ou toute entité pouvant apparaître plusieurs fois dans les données, utilise TOUJOURS DISTINCT pour éviter les doublons, sauf si la question demande explicitement de voir chaque transaction/ligne individuelle.\\n- Pour les questions sur les fournisseurs déjà agrégées (total, moyenne, nombre d'achats), privilégie la vue vw_achat_kpi_fournisseur si elle contient déjà la colonne demandée.\\n- Pour les questions sur les achats sans détail de matière première, utilise vw_achat_entetes plutôt que vw_achat (plus simple, pas de doublons de lignes).\\n- Si la question est une salutation, hors-sujet, une action de modification/suppression de données, ou incompréhensible, réponds: SELECT 'Question hors périmètre' AS erreur;\\n\\nEXEMPLES:\\nQuestion: Quel est le produit le plus cher ?\\nSQL: SELECT NomArticle, Prix FROM view_product ORDER BY Prix DESC LIMIT 1;\\n\\nQuestion: Liste tous les clients\\nSQL: SELECT DISTINCT NomClient FROM view_customer_invoice;\\n\\nQuestion: Quel client doit le plus d'argent ?\\nSQL: SELECT NomClient, ResteReglemnt FROM view_customer_invoice WHERE ResteReglemnt > 0 ORDER BY ResteReglemnt DESC LIMIT 1;\\n\\nQuestion: Liste tous les fournisseurs\\nSQL: SELECT DISTINCT NomFournisseur FROM vw_achat_entetes;\\n\\nQuestion: Quel fournisseur a le plus d'achats ?\\nSQL: SELECT NomFournisseur, NombreAchats FROM vw_achat_kpi_fournisseur ORDER BY NombreAchats DESC LIMIT 1;\\n\\nQuestion: Quel est le total des achats non réglés ?\\nSQL: SELECT SUM(TotalResteARegler) AS total FROM vw_achat_kpi_fournisseur;\\n\\nQuestion: Liste les achats non réglés\\nSQL: SELECT NumeroAchat, NomFournisseur, TotalTTC, ResteARegler FROM vw_achat_entetes WHERE StatutReglement = 'Non réglé';\\n\\nQuestion: Quelle matière première a été achetée en plus grande quantité ?\\nSQL: SELECT DesignationMP, SUM(Quantite) AS total_qte FROM vw_achat GROUP BY DesignationMP ORDER BY total_qte DESC LIMIT 1;\\n\\nQuestion: Bonjour\\nSQL: SELECT 'Question hors périmètre' AS erreur;\\n\\nQuestion: {{ $json.body.question }}\\nSQL:\",\n  \"stream\": false,\n  \"options\": {\n    \"temperature\": 0.1\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1344,
+        16
+      ],
+      "id": "2b040062-8a3e-47f3-848b-3c7663272727",
+      "name": "OllamaHTTP"
+    }
+  ],
+  "pinData": {
+    "Edit Fields": [
+      {
+        "json": {
+          "answer": "Je n'ai pas compris ta question, peux-tu reformuler ?"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "OllamaHTTP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OllamaHTTP": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "b541cab2-eb26-4d70-9532-a921ef52b938",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2ff73c7eb49d8f0084f450e8954ed97526f358a5654ac53e986a09041e7ef35b"
+  },
+  "nodeGroups": [],
+  "id": "mesOjybhQ8Q0bm7p",
+  "tags": []
+}
