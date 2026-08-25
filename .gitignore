@@ -6,3 +6,4 @@ __pycache__/
 venv/
 .env
 .streamlit/app.log
+app.log
