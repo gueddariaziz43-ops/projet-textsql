@@ -1,4 +1,4 @@
-﻿import streamlit as st
+import streamlit as st
 import requests
 import pandas as pd
 import uuid
@@ -90,7 +90,12 @@ if question:
             try:
                 response = requests.post(WEBHOOK_URL, json={"question": question}, timeout=120)
                 if response.status_code == 200:
-                    data = response.json()
+                    payload = response.json()
+                    data = payload.get("data", [])
+                    agent_reply = payload.get("agent_reply", "")
+
+                    if isinstance(data, str):
+                        data = []
 
                     if isinstance(data, list) and len(data) > 0:
                         df = pd.DataFrame(data).drop_duplicates().reset_index(drop=True)
@@ -115,10 +120,7 @@ if question:
                             st.markdown(answer)
                             st.dataframe(df, use_container_width=True)
                     elif isinstance(data, list) and len(data) == 0:
-                        answer = "Aucun resultat trouve pour cette question."
-                        st.markdown(answer)
-                    else:
-                        answer = str(data)
+                        answer = agent_reply if agent_reply else "Aucun resultat trouve pour cette question."
                         st.markdown(answer)
                 else:
                     answer = "Une erreur est survenue cote serveur."
