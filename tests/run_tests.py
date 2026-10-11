@@ -1,17 +1,42 @@
-﻿"""
+"""
 Script de test batch pour l'assistant Text-to-SQL.
+
+Chaque question de test_questions.json est posee a la VRAIE application Streamlit
+(app/chat_app.py), pilotee avec streamlit.testing. On verifie ensuite ce que
+l'application a elle-meme enregistre dans historique.json.
+
+Prerequis : n8n, Ollama et MySQL demarres (comme pour utiliser l'application).
+Lancement, depuis n'importe quel dossier :
+    python tests/run_tests.py
 """
 
 import json
-import time
-import requests
+import logging
+import os
+import re
+import sys
 from datetime import datetime, timezone
 
-WEBHOOK_URL = "http://localhost:5678/webhook/sql-assistant-v2"
-TEST_QUESTIONS_FILE = "test_questions.json"
-HISTORIQUE_FILE = "historique.json"
-RESULTS_FILE = "test_results.json"
-TIMEOUT_SECONDS = 120
+TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(TESTS_DIR)
+APP_PATH = os.path.join(BASE_DIR, "app", "chat_app.py")
+TEST_QUESTIONS_FILE = os.path.join(TESTS_DIR, "test_questions.json")
+RESULTS_FILE = os.path.join(BASE_DIR, "test_results.json")
+TIMEOUT_SECONDS = 150
+
+# Meme fichier que l'application (meme variable d'environnement, meme valeur par defaut)
+os.environ.setdefault("HISTORIQUE_FILE", os.path.join(BASE_DIR, "historique.json"))
+HISTORIQUE_FILE = os.environ["HISTORIQUE_FILE"]
+
+CATEGORIE_HORS_PERIMETRE = "hors_perimetre"
+
+# Debuts des messages que l'application affiche quand quelque chose a echoue
+MESSAGES_ECHEC = (
+    "Impossible de contacter l'assistant",
+    "Une erreur est survenue",
+    "Le serveur met trop de temps",
+    "Je n'ai pas compris",
+)
 
 
 def charger_questions(chemin):
@@ -28,55 +53,59 @@ def charger_historique(chemin):
         return []
 
 
-def enregistrer_historique(user_question, sql_query, agent_reply, response_time_ms):
-    entree = {
-        "user_question": user_question,
-        "sql_query": sql_query,
-        "agent_reply": agent_reply,
-        "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "response_time_ms": response_time_ms
-    }
+def poser_question_a_l_app(question):
+    """Ouvre l'application, tape la question dans le chat et attend la reponse."""
+    from streamlit.testing.v1 import AppTest
+
+    # Avertissement "missing ScriptRunContext" : normal quand Streamlit est pilote par un script
+    logging.getLogger("streamlit.runtime.scriptrunner_utils.script_run_context").setLevel(logging.ERROR)
+    at = AppTest.from_file(APP_PATH, default_timeout=TIMEOUT_SECONDS)
+    at.run()
+    at.chat_input[0].set_value(question).run()
+    if at.exception:
+        return False, str(at.exception[0].message)
+    return True, None
+
+
+def nouvelle_entree(question, nb_avant):
+    """Renvoie l'entree ajoutee par l'application pour cette question, ou None."""
     historique = charger_historique(HISTORIQUE_FILE)
-    historique.append(entree)
-    with open(HISTORIQUE_FILE, "w", encoding="utf-8") as f:
-        json.dump(historique, f, ensure_ascii=False, indent=2)
+    for entree in historique[nb_avant:]:
+        if entree.get("user_question") == question:
+            return entree
+    return None
 
 
-def poser_question(question):
-    start = time.time()
-    try:
-        resp = requests.post(WEBHOOK_URL, json={"question": question}, timeout=TIMEOUT_SECONDS)
-        duree_ms = int((time.time() - start) * 1000)
-        if resp.status_code == 200:
-            return True, resp.json(), duree_ms
-        else:
-            return False, f"Status HTTP {resp.status_code}", duree_ms
-    except requests.exceptions.Timeout:
-        duree_ms = int((time.time() - start) * 1000)
-        return False, "Timeout", duree_ms
-    except Exception as e:
-        duree_ms = int((time.time() - start) * 1000)
-        return False, str(e), duree_ms
+def evaluer(categorie, entree):
+    """Renvoie (succes, raison) a partir de l'entree d'historique."""
+    if entree is None:
+        return False, "question absente de historique.json"
 
+    champs = {"user_question", "sql_query", "agent_reply", "timestamp", "response_time_ms"}
+    manquants = champs - set(entree)
+    if manquants:
+        return False, f"champs manquants : {sorted(manquants)}"
 
-def verifier_historique_contient(question, historique_avant):
-    historique_apres = charger_historique(HISTORIQUE_FILE)
-    if len(historique_apres) <= len(historique_avant):
-        return False, None
-    nouvelle_entree = historique_apres[-1]
-    if nouvelle_entree.get("user_question") == question:
-        return True, nouvelle_entree
-    anciennes_questions = {e.get("user_question") for e in historique_avant}
-    for entree in reversed(historique_apres):
-        if entree.get("user_question") == question and entree.get("user_question") not in anciennes_questions:
-            return True, entree
-    return False, None
+    sql = (entree.get("sql_query") or "").strip()
+    reponse = (entree.get("agent_reply") or "").strip()
+
+    if any(reponse.startswith(m) for m in MESSAGES_ECHEC):
+        return False, f"reponse d'echec : {reponse[:80]}"
+
+    if categorie == CATEGORIE_HORS_PERIMETRE:
+        if sql == "" or re.search(r"hors\s+p[ée]rim[èe]tre", sql, re.IGNORECASE):
+            return True, "refusee comme hors perimetre"
+        return False, f"aurait du etre refusee, SQL genere : {sql[:80]}"
+
+    if not re.match(r"(SELECT|WITH)\b", sql, re.IGNORECASE):
+        return False, f"pas de requete SELECT : {sql[:80] or '(vide)'}"
+    if not reponse:
+        return False, "reponse vide"
+    return True, "ok"
 
 
 def main():
-    print(f"Chargement de {TEST_QUESTIONS_FILE}...")
     categories = charger_questions(TEST_QUESTIONS_FILE)
-
     total = sum(len(qs) for qs in categories.values())
     print(f"{total} questions a tester, reparties en {len(categories)} categories.\n")
 
@@ -89,46 +118,46 @@ def main():
             compteur += 1
             print(f"[{compteur}/{total}] {question}")
 
-            historique_avant = charger_historique(HISTORIQUE_FILE)
+            nb_avant = len(charger_historique(HISTORIQUE_FILE))
+            app_ok, erreur_app = poser_question_a_l_app(question)
+            entree = nouvelle_entree(question, nb_avant)
 
-            succes_http, reponse, duree_ms = poser_question(question)
+            if app_ok:
+                succes, raison = evaluer(categorie, entree)
+            else:
+                succes, raison = False, f"exception dans l'application : {erreur_app}"
 
-            sql_query = ""
-            agent_reply = ""
-            if succes_http and isinstance(reponse, dict):
-                sql_query = reponse.get("sql_query", "")
-                agent_reply = reponse.get("agent_reply", "")
-            elif not succes_http:
-                agent_reply = f"ERREUR: {reponse}"
-
-            enregistrer_historique(question, sql_query, agent_reply, duree_ms)
-            historique_ok, entree_historique = verifier_historique_contient(question, historique_avant)
-
-            resultat = {
+            resultats.append({
                 "question": question,
                 "categorie": categorie,
-                "succes_http": succes_http,
-                "duree_ms": duree_ms,
-                "reponse_brute": reponse if succes_http else None,
-                "erreur": reponse if not succes_http else None,
-                "trouve_dans_historique": historique_ok,
-                "timestamp_test": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-            }
-            resultats.append(resultat)
+                "succes": succes,
+                "raison": raison,
+                "sql_query": entree.get("sql_query") if entree else None,
+                "agent_reply": entree.get("agent_reply") if entree else None,
+                "response_time_ms": entree.get("response_time_ms") if entree else None,
+                "timestamp_test": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            })
 
-            statut = "OK" if succes_http else "ECHEC"
-            print(f"    -> {statut} ({duree_ms} ms)")
-
+            duree = f" ({entree['response_time_ms']} ms)" if entree else ""
+            print(f"    -> {'OK' if succes else 'ECHEC'}{duree} : {raison}")
         print()
 
     with open(RESULTS_FILE, "w", encoding="utf-8") as f:
         json.dump(resultats, f, ensure_ascii=False, indent=2)
 
-    nb_succes = sum(1 for r in resultats if r["succes_http"])
     print("=" * 50)
-    print(f"Termine : {nb_succes}/{total} reponses HTTP reussies.")
+    for categorie in categories:
+        res_cat = [r for r in resultats if r["categorie"] == categorie]
+        nb_ok = sum(r["succes"] for r in res_cat)
+        print(f"{categorie:<22} {nb_ok}/{len(res_cat)}")
+    nb_succes = sum(r["succes"] for r in resultats)
+    temps = [r["response_time_ms"] for r in resultats if r["response_time_ms"] is not None]
+    if temps:
+        print(f"Temps de reponse moyen : {sum(temps) // len(temps)} ms")
+    print(f"Total : {nb_succes}/{total} questions reussies.")
     print(f"Resultats detailles ecrits dans {RESULTS_FILE}")
+    return 0 if nb_succes == total else 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

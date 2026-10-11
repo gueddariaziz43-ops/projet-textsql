@@ -1,4 +1,4 @@
-﻿import streamlit as st
+import streamlit as st
 import requests
 import pandas as pd
 import uuid
@@ -8,8 +8,11 @@ import json
 import os
 from datetime import datetime, timezone
 
+# Les fichiers generes vont a la racine du projet, quel que soit le dossier de lancement
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 logging.basicConfig(
-    filename="app.log",
+    filename=os.path.join(BASE_DIR, "app.log"),
     level=logging.ERROR,
     format="%(asctime)s [%(levelname)s] %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S"
@@ -25,9 +28,9 @@ def dedup_safe(df):
 
 st.set_page_config(page_title="Assistant Base de Donnees", page_icon="chat", layout="wide")
 
-WEBHOOK_URL = "http://localhost:5678/webhook/sql-assistant-v2"
+WEBHOOK_URL = os.environ.get("WEBHOOK_URL", "http://localhost:5678/webhook/sql-assistant-v2")
 MAX_DISPLAY_ROWS = 10
-HISTORIQUE_FILE = "historique.json"
+HISTORIQUE_FILE = os.environ.get("HISTORIQUE_FILE", os.path.join(BASE_DIR, "historique.json"))
 
 
 def enregistrer_historique(user_question, sql_query, agent_reply, response_time_ms):
